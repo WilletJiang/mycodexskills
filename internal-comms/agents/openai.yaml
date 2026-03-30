@@ -1,0 +1,4 @@
+interface:
+  display_name: "Internal Comms"
+  short_description: "Help with Internal Comms tasks"
+  default_prompt: "Use $internal-comms to draft this internal communication."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Brand Guidelines"
+  short_description: "Help with Brand Guidelines tasks"
+  default_prompt: "Use $brand-guidelines to apply the brand style consistently."

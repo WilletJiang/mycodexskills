@@ -1,0 +1,4 @@
+interface:
+  display_name: "PyTorch Python Performance"
+  short_description: "Optimize PyTorch before custom CUDA"
+  default_prompt: "Use $pytorch-python-performance to squeeze more speed out of a PyTorch training or inference path before reaching for custom CUDA."

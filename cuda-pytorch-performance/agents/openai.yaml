@@ -1,0 +1,4 @@
+interface:
+  display_name: "CUDA PyTorch Performance"
+  short_description: "Optimize PyTorch CUDA performance"
+  default_prompt: "Use $cuda-pytorch-performance to optimize a PyTorch workload with CUDA kernels, vendor libraries, and disciplined benchmarking."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web App Testing"
+  short_description: "Help with Web App Testing tasks"
+  default_prompt: "Use $webapp-testing to inspect and test the local web application."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "LaTeX Formula Polish"
+  short_description: "Beautify and stabilize LaTeX math layout"
+  default_prompt: "Use $latex-formula-polish to improve the equation layout in this .tex file."

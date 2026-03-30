@@ -1,0 +1,4 @@
+interface:
+  display_name: "Algorithmic Art"
+  short_description: "Help with Algorithmic Art tasks"
+  default_prompt: "Use $algorithmic-art to create original generative artwork."

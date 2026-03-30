@@ -1,0 +1,4 @@
+interface:
+  display_name: "Canvas Design"
+  short_description: "Help with Canvas Design tasks"
+  default_prompt: "Use $canvas-design to create a polished static visual design."

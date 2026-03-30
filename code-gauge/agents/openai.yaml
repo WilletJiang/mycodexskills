@@ -1,0 +1,7 @@
+interface:
+  display_name: "Code Gauge"
+  short_description: "Read and use before coding."
+  default_prompt: "Use $code-gauge to inspect the task, surface constraints, and make a pre-coding plan before editing."
+
+policy:
+  allow_implicit_invocation: true
