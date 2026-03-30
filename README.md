@@ -78,10 +78,5 @@ Use $webapp-testing to verify the local app behavior after the fix.
 
 ## Notes
 
-- `.system/` is intentionally excluded from version control.
 - Each skill keeps its trigger logic in `SKILL.md`.
 - `agents/openai.yaml` is included so the skills behave cleanly in modern Codex setups.
-
-## License
-
-Individual skill folders may include their own license files. Check the specific folder if licensing matters for your use case.
