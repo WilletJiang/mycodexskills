@@ -1,98 +1,87 @@
 <div align="center">
   <h1>mycodexskills</h1>
-  <p>A curated skill pack for Codex: planning, document work, design, testing, and performance.</p>
-  <p>
-    <code>code-gauge</code>
-    <code>docx</code>
-    <code>webapp-testing</code>
-    <code>frontend-design</code>
-    <code>pdf</code>
-    <code>xlsx</code>
-  </p>
+  <p><strong>Codex skills for serious technical work.</strong></p>
+  <p>Focused on <code>latex</code>, <code>cuda</code>, <code>python</code>, and <code>code</code>.</p>
 </div>
 
-## What This Repo Is
+## Focus
 
-This repository collects practical Codex skills that I actually want within reach:
+This repository is not meant to be a random dump of prompts.
 
-- plan before coding
-- work with Office and PDF files
-- build better frontends
-- test local web apps
-- optimize PyTorch workloads
-- create polished visual artifacts
+Its center of gravity is technical work that benefits from sharp, reusable workflows:
 
-The goal is simple: fewer generic outputs, more sharp workflows.
+- planning code before implementation
+- polishing LaTeX math
+- optimizing PyTorch at the Python level
+- optimizing PyTorch with CUDA and vendor libraries
+- testing and validating real code changes
+
+The core idea is simple:
+
+> keep the skills that encode judgment, not the ones you can trivially recover from web search.
+
+## Core Skills
+
+| Skill | Purpose |
+|------|---------|
+| `code-gauge` | pre-coding planning, simplification, compatibility, and verification gates |
+| `latex-formula-polish` | clean up LaTeX math layout without changing meaning |
+| `pytorch-python-performance` | speed up PyTorch before reaching for CUDA |
+| `cuda-pytorch-performance` | optimize GPU-side PyTorch execution with CUDA/C++ and vendor libs |
+| `webapp-testing` | verify local web apps and browser behavior with Playwright |
+
+## Secondary Skills
+
+These are still useful, but they are not the main reason this repo exists:
+
+- `docx`
+- `pdf`
+- `pptx`
+- `xlsx`
+- `frontend-design`
+- `web-artifacts-builder`
 
 ## Quick Install
 
-### Fresh Setup
-
-If `~/.codex/skills` does not already exist:
+### Install as Your Main Skills Directory
 
 ```bash
 git clone https://github.com/WilletJiang/mycodexskills.git ~/.codex/skills
 ```
 
-### Add To An Existing Setup
-
-If you already have a skills directory and only want a few of these:
+### Or Symlink Only the Skills You Want
 
 ```bash
 git clone https://github.com/WilletJiang/mycodexskills.git ~/src/mycodexskills
 ln -s ~/src/mycodexskills/code-gauge ~/.codex/skills/code-gauge
-ln -s ~/src/mycodexskills/docx ~/.codex/skills/docx
-ln -s ~/src/mycodexskills/webapp-testing ~/.codex/skills/webapp-testing
+ln -s ~/src/mycodexskills/latex-formula-polish ~/.codex/skills/latex-formula-polish
+ln -s ~/src/mycodexskills/pytorch-python-performance ~/.codex/skills/pytorch-python-performance
+ln -s ~/src/mycodexskills/cuda-pytorch-performance ~/.codex/skills/cuda-pytorch-performance
 ```
 
-## Recommended Starting Set
-
-| Skill | Use It For |
-|------|------------|
-| `code-gauge` | force a short planning gate before coding |
-| `docx` | create, inspect, or redline Word documents |
-| `pdf` | extract, merge, fill, OCR, or generate PDFs |
-| `pptx` | build or edit slide decks |
-| `xlsx` | clean up or generate spreadsheets |
-| `frontend-design` | make web UI feel designed, not generic |
-| `webapp-testing` | verify local web apps with Playwright |
-
-## Catalog
-
-- `algorithmic-art` - generative art with p5.js
-- `brand-guidelines` - apply brand style consistently
-- `canvas-design` - create polished static visual designs
-- `code-gauge` - planning, simplification, and compatibility checks before coding
-- `cuda-pytorch-performance` - GPU-side PyTorch optimization
-- `doc-coauthoring` - structured doc-writing workflow
-- `docx` - Word document creation and editing
-- `frontend-design` - high-quality frontend UI work
-- `internal-comms` - internal updates, newsletters, FAQs, and status writing
-- `latex-formula-polish` - clean up LaTeX math layout
-- `pdf` - PDF processing workflows
-- `pptx` - PowerPoint creation and editing
-- `pytorch-python-performance` - Python-level PyTorch optimization
-- `web-artifacts-builder` - larger multi-file HTML artifacts
-- `webapp-testing` - browser-driven local app testing
-- `xlsx` - spreadsheet workflows
-
-## How I Use It
-
-A few common prompts:
+## Example Usage
 
 ```text
 Use $code-gauge before touching this refactor.
-Use $docx to update the contract and keep tracked changes.
-Use $webapp-testing to verify the local dashboard flow.
-Use $frontend-design to redesign this landing page.
+Use $latex-formula-polish to clean up the equations in this .tex file.
+Use $pytorch-python-performance to profile and optimize this training loop.
+Use $cuda-pytorch-performance to find the GPU bottleneck and improve throughput.
+Use $webapp-testing to verify the local app behavior after the fix.
 ```
+
+## Repo Philosophy
+
+- prefer skills that save reasoning, not just typing
+- prefer workflows with verification paths
+- prefer technical leverage over generic convenience
+- prefer small, sharp, reusable operating guides
 
 ## Notes
 
-- `.system/` is intentionally excluded from version control here.
+- `.system/` is intentionally excluded from version control.
 - Each skill keeps its trigger logic in `SKILL.md`.
 - `agents/openai.yaml` is included so the skills behave cleanly in modern Codex setups.
 
 ## License
 
-Individual skills may carry their own license files. Check the skill folder if that matters for your use case.
+Individual skill folders may include their own license files. Check the specific folder if licensing matters for your use case.
