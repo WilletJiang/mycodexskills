@@ -36,8 +36,7 @@ Decide how success will be proven before editing: tests, repro steps, type check
 
 ## Emit This Plan Before Non-Trivial Edits
 
-For non-trivial work, produce a short plan with these headings before editing:
-
+For non-trivial work, produce a short plan with headings like this blow before editing:
 ```text
 Objective
 Constraints
