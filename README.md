@@ -1,45 +1,7 @@
 <div align="center">
   <h1>mycodexskills</h1>
   <p><strong>Codex skills for serious technical work.</strong></p>
-  <p>Focused on <code>latex</code>, <code>cuda</code>, <code>python</code>, and <code>code</code>.</p>
 </div>
-
-## Focus
-
-This repository is not meant to be a random dump of prompts.
-
-Its center of gravity is technical work that benefits from sharp, reusable workflows:
-
-- planning code before implementation
-- polishing LaTeX math
-- optimizing PyTorch at the Python level
-- optimizing PyTorch with CUDA and vendor libraries
-- testing and validating real code changes
-
-The core idea is simple:
-
-> keep the skills that encode judgment, not the ones you can trivially recover from web search.
-
-## Core Skills
-
-| Skill | Purpose |
-|------|---------|
-| `code-gauge` | pre-coding planning, simplification, compatibility, and verification gates |
-| `latex-formula-polish` | clean up LaTeX math layout without changing meaning |
-| `pytorch-python-performance` | speed up PyTorch before reaching for CUDA |
-| `cuda-pytorch-performance` | optimize GPU-side PyTorch execution with CUDA/C++ and vendor libs |
-| `webapp-testing` | verify local web apps and browser behavior with Playwright |
-
-## Secondary Skills
-
-These are still useful, but they are not the main reason this repo exists:
-
-- `docx`
-- `pdf`
-- `pptx`
-- `xlsx`
-- `frontend-design`
-- `web-artifacts-builder`
 
 ## Quick Install
 
@@ -69,14 +31,7 @@ Use $cuda-pytorch-performance to find the GPU bottleneck and improve throughput.
 Use $webapp-testing to verify the local app behavior after the fix.
 ```
 
-## Repo Philosophy
-
-- prefer skills that save reasoning, not just typing
-- prefer workflows with verification paths
-- prefer technical leverage over generic convenience
-- prefer small, sharp, reusable operating guides
 
 ## Notes
 
-- Each skill keeps its trigger logic in `SKILL.md`.
-- `agents/openai.yaml` is included so the skills behave cleanly in modern Codex setups.
+Each skill keeps its trigger logic in `SKILL.md`. And `agents/openai.yaml` is included so the skills behave cleanly in Codex setups.
