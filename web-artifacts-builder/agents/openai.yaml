@@ -1,4 +1,7 @@
 interface:
   display_name: "Web Artifacts Builder"
-  short_description: "Help with Web Artifacts Builder tasks"
-  default_prompt: "Use $web-artifacts-builder to build this multi-file HTML artifact."
+  short_description: "Bundle React artifacts and verify them."
+  default_prompt: "Use $web-artifacts-builder to build, bundle, and visually verify the self-contained HTML artifact."
+
+policy:
+  allow_implicit_invocation: true

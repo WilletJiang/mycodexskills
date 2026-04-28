@@ -1,4 +1,7 @@
 interface:
   display_name: "Canvas Design"
-  short_description: "Help with Canvas Design tasks"
-  default_prompt: "Use $canvas-design to create a polished static visual design."
+  short_description: "Create static visuals with render checks."
+  default_prompt: "Use $canvas-design to create an original PNG or PDF composition and inspect the final rendered output."
+
+policy:
+  allow_implicit_invocation: true

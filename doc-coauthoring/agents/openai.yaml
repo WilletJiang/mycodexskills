@@ -1,4 +1,7 @@
 interface:
-  display_name: "Doc Coauthoring"
-  short_description: "Help with Doc Coauthoring tasks"
-  default_prompt: "Use $doc-coauthoring to guide this documentation workflow."
+  display_name: "Document Co-Authoring"
+  short_description: "Draft documents with reader simulation."
+  default_prompt: "Use $doc-coauthoring to gather context, draft section by section, and test the document through in-thread reader simulation unless fresh subagents are explicitly requested."
+
+policy:
+  allow_implicit_invocation: true

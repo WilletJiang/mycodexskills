@@ -1,4 +1,7 @@
 interface:
   display_name: "LaTeX Formula Polish"
-  short_description: "Beautify and stabilize LaTeX math layout"
-  default_prompt: "Use $latex-formula-polish to improve the equation layout in this .tex file."
+  short_description: "Write formula-heavy LaTeX with a typesetting harness."
+  default_prompt: "Use $latex-formula-polish to write or revise the mathematical LaTeX together with compile checks, warning scans, and affected-page visual inspection."
+
+policy:
+  allow_implicit_invocation: true

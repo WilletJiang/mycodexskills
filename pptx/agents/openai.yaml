@@ -1,4 +1,7 @@
 interface:
-  display_name: "PPTX"
-  short_description: "Help with PPTX tasks and workflows"
-  default_prompt: "Use $pptx to create, edit, or inspect the presentation."
+  display_name: "PPTX Workflows"
+  short_description: "Create presentations with render checks."
+  default_prompt: "Use $pptx to create or edit the presentation while repeatedly verifying text content and rendered slide layout."
+
+policy:
+  allow_implicit_invocation: true

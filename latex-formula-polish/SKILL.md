@@ -1,109 +1,30 @@
 ---
 name: latex-formula-polish
-description: Beautify and stabilize LaTeX mathematical typesetting in `.tex` files. Use when Codex needs to condense multi-line equations, align `=`, `+`, `-`, `\le`, or similar symbols, fix formula-related `Overfull \hbox` issues, reorganize theorem/lemma displays, make parameter blocks or matrix lists more regular, or generally polish the visual layout of math without changing its meaning.
+description: Write and revise LaTeX mathematical content with a coding-time typesetting harness. Use when creating or editing theorem statements, lemmas, proofs, model equations, estimates, parameter blocks, aligned derivations, matrices, or formula-heavy .tex sections, especially when layout, equation numbering, references, Overfull hbox warnings, or PDF visual quality could be affected.
 ---
 
-# LaTeX Formula Polish
+# LaTeX Formula Harness
 
-## Overview
+Use this skill while writing or editing mathematical LaTeX, not only after the compiled PDF looks bad. Treat mathematical content and its typesetting harness as one deliverable: the source should preserve meaning, compile cleanly, avoid predictable overfull displays, and render with stable visual structure.
 
-Polish LaTeX math by improving structure, alignment, and visual balance while preserving the mathematics exactly. Treat this as typesetting work first: reduce clutter, expose semantic groups, and make the page feel stable.
+The goal is typesetting discipline, not mathematical rewriting. Preserve statements, notation, labels, numbering, assumptions, cross-references, and citation structure unless the user explicitly asks for mathematical changes. When a layout fix requires a local structural edit, keep the mathematical content equivalent and explain the change if it affects readability or reference structure.
 
-Read [references/patterns.md](references/patterns.md) when you need concrete layout patterns or example transformations.
+## Harness Contract
 
-## Workflow
+Before editing formula-heavy text, identify the local compile command, the relevant `.tex` entry point, the edited labels, and the PDF pages likely to change. If the repository already has a Makefile, latexmk configuration, build script, or CI command, use that. If not, create no new build system unless needed; record the direct compile command that proves the edited section.
 
-1. Inspect the target formulas in the `.tex` source before editing.
-2. Identify the actual defect:
-   - too many short lines
-   - symbols not aligned
-   - visual center unstable
-   - formula overflows the measure
-   - parameter block or definition block looks ragged
-3. Preserve mathematical meaning. Do not rename symbols, alter assumptions, or change numbering unless required by the formatting fix.
-4. Rebuild the formula around a clear skeleton instead of nudging whitespace.
-5. Compile when feasible and verify that the result is visually improved and free of new warnings.
+For substantial formula work, compile after the first meaningful edit and again at the end. Scan for undefined references, undefined citations, equation-numbering changes, formula-related `Overfull \hbox` warnings, and new LaTeX errors. When the final PDF exists, render or inspect the affected pages visually rather than relying only on log output.
 
-## Core Rules
+Read `references/coding-harness.md` before writing or substantially revising formula-heavy LaTeX. Read `references/patterns.md` when concrete layout transformations are needed.
 
-- Break lines by semantic groups, not by raw character count.
-- Prefer one strong alignment spine over many local alignments.
-- Keep outer operators on a clean vertical column when the expression is multi-line.
-- Let continuation lines read as intentional continuations, not as leftovers.
-- Use shorter lines to improve balance, but do not fragment aggressively.
-- Prefer structural edits over spacing hacks.
+## Writing Workflow
 
-## Choose The Right Environment
+Design the equation layout while writing the mathematics. Break formulas by semantic role, not by raw character count. Establish one clear alignment spine for derivations, inequalities, and estimates. Group terms by mathematical function: drift, diffusion, jump, residual, stochastic term, coefficient block, denominator class, or assumption family. Do not write a long horizontal display first and defer all line breaking to a later cleanup pass.
 
-- Use `aligned` for most multi-line equations with one main alignment spine.
-- Use `alignedat` for parameter grids or paired objects such as `C/A`, `S_1/S_2`, `R_1/R_2`.
-- Use `split` when one numbered display needs controlled continuation but not multiple alignment blocks.
-- Use `gathered` only when vertical stacking matters more than column alignment.
-- Avoid `array` unless the content is truly tabular.
+Choose environments deliberately. Use `aligned` for most multi-line displays with one main spine, `alignedat` for paired definitions and parameter grids, `split` for one numbered display with controlled continuation, and `gathered` when vertical stacking matters more than column alignment. Use `array` only for genuinely tabular mathematical content.
 
-## Layout Heuristics
+For theorem and proof sections, keep statement readability, proof flow, labels, and references stable. If a proof contains a long estimate, structure it as an argument with readable display blocks rather than a dense sequence of unplanned line breaks.
 
-### Condense Without Hiding Structure
+## Completion Standard
 
-- Merge adjacent short terms when they share the same coefficient, denominator class, or logical role.
-- Keep each line dense enough to feel purposeful, but short enough to scan in one glance.
-- When reducing line count, group terms into visually meaningful pairs or blocks.
-
-### Align Symbols Rigorously
-
-- Put the main `=` on the alignment anchor.
-- Align continuation `+`, `-`, `\le`, `\ge`, or similar leading symbols on the same anchor column when they are siblings in the same derivation.
-- Prefer a shared `&` anchor like `&{}+` or `&{}\le` over manual spacing.
-- Use `\phantom{=}` only when a continuation line should start exactly under the operator slot of the first line and a shared anchor alone is insufficient.
-
-### Stabilize The Visual Center
-
-- Avoid a layout where a lone minus line or short continuation line pulls the formula off-center.
-- Put the dominant structural block on the first line after `=`.
-- Move secondary nonlinear, stochastic, or residual terms to later lines.
-- Keep sibling terms together so the eye sees blocks, not fragments.
-
-### Fix Overfull Formula Lines
-
-- First change breakpoints, not font size.
-- Split paired definitions into stacked aligned lines instead of forcing them onto one row.
-- Recast long inequalities as two or three aligned lines with a stable symbol spine.
-- For parameter lists, convert long horizontal runs into grouped aligned blocks.
-- Tighten excessive inter-column spacing before resorting to more invasive changes.
-
-## Common Targets
-
-### Model Equations
-
-- Separate drift, diffusion, and jump terms into their own lines.
-- Inside the drift, keep the main deterministic core together and place additive nonlinear terms on a controlled continuation line.
-
-### Chains Of Inequalities Or Estimates
-
-- Align the comparison symbols.
-- Keep coefficient-heavy correction terms grouped by role.
-- If a proof line contains storage or trigger terms, group them by sign and denominator structure.
-
-### Definitions And Parameter Blocks
-
-- Stack paired definitions such as `\Phi/\Psi` or `D_x/E_y`.
-- Use `alignedat` for two-column parameter presentations.
-- For matrices and `\operatorname{diag}(...)` lists, choose between a one-line display and a wrapped display based on actual page width, not habit.
-
-## Verification
-
-- Compile the document if practical.
-- Check for formula-related `Overfull \hbox` warnings.
-- Confirm that aligned symbols are truly column-aligned in source structure, not merely visually close.
-- Confirm that equation numbering, labels, and references still work.
-- Prefer local fixes. Do not introduce global settings unless repeated local issues justify them.
-
-## Global Knobs
-
-Use document-level adjustments only as secondary tools:
-
-- `fleqn` can help when the document already uses flush-left displays.
-- `\setlength{\emergencystretch}{...}` can reduce borderline overflow pressure.
-- `\allowdisplaybreaks[1]` can help long derivations span pages more gracefully.
-
-Do not add global knobs as a substitute for poor local line breaking.
+Finish with the source changes, compile command, warning summary, affected labels or equation numbers, visual inspection of affected PDF pages when available, and any remaining layout risk. A formula-heavy edit without a compile or visual check is incomplete unless the environment prevents verification, in which case state exactly what remains unverified.

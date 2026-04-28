@@ -1,4 +1,7 @@
 interface:
-  display_name: "Web App Testing"
-  short_description: "Help with Web App Testing tasks"
-  default_prompt: "Use $webapp-testing to inspect and test the local web application."
+  display_name: "Web Application Testing"
+  short_description: "Build Playwright visual harnesses."
+  default_prompt: "Use $webapp-testing to verify rendered UI, interactions, console output, screenshots, and responsive behavior."
+
+policy:
+  allow_implicit_invocation: true

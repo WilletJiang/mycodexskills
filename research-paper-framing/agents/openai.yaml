@@ -1,4 +1,7 @@
 interface:
   display_name: "Research Paper Framing"
-  short_description: "Frame abstracts, intros, and contributions"
-  default_prompt: "Use $research-paper-framing to sharpen a research paper abstract, introduction, literature gap, and contribution framing."
+  short_description: "Sharpen abstracts, introductions, and contribution claims."
+  default_prompt: "Use $research-paper-framing to identify the real contribution, position it against literature, and revise the manuscript framing."
+
+policy:
+  allow_implicit_invocation: true

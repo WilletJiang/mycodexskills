@@ -5,69 +5,41 @@ description: Pre-implementation code planning, simplification, and compatibility
 
 # Code Gauge
 
-## Overview
+Use this skill as a short engineering gate before changing code. The purpose is not to produce a long plan; it is to prevent unclear objectives, hidden compatibility breaks, unnecessary abstractions, and weak verification from entering the implementation.
 
-Run this skill before changing code. Read only enough context to understand the task, then force a short plan that protects correctness, compatibility, and simplicity before implementation starts.
+Read only enough context to understand the task, the local design, and the risk surface. For trivial, local edits, the gauge can be compressed to a few sentences. Use the full form for multi-file changes, refactors, bug fixes with uncertain causes, public interfaces, schema changes, migrations, concurrency work, performance work, or reviews where regression risk is not obvious.
 
-## Operate as a Pre-Coding Gate
+## Gauge
 
-- Treat this skill as a decision gate, not a brainstorming essay.
-- Keep the planning pass proportional to the task size.
-- Compress the gauge to a few lines for trivial, local, low-risk edits.
-- Run the full gauge for multi-file changes, refactors, bug fixes with unclear causes, public interface changes, schema changes, migrations, concurrency work, performance work, or review tasks with non-obvious risk.
-- Prefer removing complexity over managing complexity.
+State the objective in concrete terms, then separate facts, assumptions, and unknowns. Identify the behaviors, interfaces, data contracts, performance properties, and rollout assumptions that must remain intact. Before proposing an implementation, ask whether the current problem is being caused by a poor data shape, misplaced boundary, brittle dependency, or control-flow structure that is forcing special cases.
 
-## Run the Gauge
+Choose the smallest implementation slice that can prove the fix or feature. Prefer explicit dependencies, guard clauses, composition, and locally readable control flow. Do not introduce a new layer, framework, or abstraction unless it removes present complexity or protects a contract that is already real.
 
-1. Define the objective.
-State the concrete outcome in one or two sentences. Separate facts, assumptions, and unknowns when they differ.
+Lock the verification path before editing. Success must be demonstrated through tests, reproduction steps, type checks, lint, examples, benchmarks, rendered artifacts, or direct inspection, depending on the task. Do not claim success from intent.
 
-2. Identify the governing constraints.
-State which behaviors, interfaces, data contracts, tests, performance characteristics, and rollout assumptions must remain intact.
+For non-trivial work, emit a compact plan before edits:
 
-3. Identify the simplification opportunity.
-Ask whether a bad data shape, boundary, dependency, or control-flow structure is forcing special cases. Prefer a structural fix over another branch, flag, or layer.
-
-4. Choose the minimal implementation slice.
-Pick the smallest change that can prove the fix or feature. Prefer composition, explicit dependencies, guard clauses, and locally obvious control flow. Avoid speculative abstractions.
-
-5. Lock the verification path.
-Decide how success will be proven before editing: tests, repro steps, type checks, lint, examples, benchmarks, or inspection of emitted artifacts. Never claim success without evidence.
-
-## Emit This Plan Before Non-Trivial Edits
-
-For non-trivial work, produce a short plan with headings like this blow before editing:
 ```text
 Objective
 Constraints
 Existing behavior to preserve
-Assumptions / unknowns
+Facts, assumptions, and unknowns
 Simplification opportunity
 Minimal implementation slice
 Verification
 Risks
 ```
 
-Keep each section short. If a section is empty, say so explicitly instead of hand-waving.
+If a section has no content, say that explicitly. A blank section is usually a hidden assumption.
 
-## Apply These Decision Rules
+## Decision Rules
 
-- Stop and reassess if the plan adds a new abstraction, layer, or framework without a concrete present need.
-- Stop and reassess if the patch adds branches for multiple special cases instead of fixing the structure that created them.
-- Stop and reassess if the change breaks a public contract, CLI, config key, file format, schema, or API without explicit approval.
-- Stop and reassess if verification is weak relative to the risk of the change.
-- Default to preserving existing behavior unless the task explicitly requires a behavior change.
+Stop and reassess when the plan adds a new abstraction without a concrete present need, accumulates branches for special cases instead of fixing the structure that created them, changes a public contract without explicit approval, or proposes verification that is weaker than the risk of the change.
 
-## Load Extra Guidance Only When Needed
+By default, preserve existing behavior. Change behavior only when the user requested it or when the current behavior is demonstrably wrong.
 
-Read [references/linus.md](references/linus.md) when evaluating compatibility risk, public interface changes, special-case-heavy code, questionable abstractions, or whether a rule has real technical justification.
+## Additional Guidance
 
-## Hand Off to Implementation
+Read `references/linus.md` when evaluating compatibility, public interfaces, special-case-heavy code, questionable abstractions, or rules whose technical justification is unclear.
 
-Once the change passes the gauge:
-
-- Edit the smallest set of files that can solve the problem.
-- Keep diffs local and reversible.
-- Preserve existing intent unless the task explicitly requires a new behavior.
-- Run the strongest available checks.
-- Report evidence, remaining risks, and any assumptions that survived implementation.
+After the gauge passes, edit the smallest set of files that can solve the problem, run the strongest available checks, and report the evidence, residual risks, and any assumptions that survived implementation.

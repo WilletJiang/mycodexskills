@@ -1,4 +1,7 @@
 interface:
-  display_name: "DOCX"
-  short_description: "Help with DOCX tasks and workflows"
-  default_prompt: "Use $docx to create, edit, or inspect the Word document."
+  display_name: "DOCX Workflows"
+  short_description: "Work with Word files using render checks."
+  default_prompt: "Use $docx to create or edit the Word document while preserving formatting and verifying the rendered result."
+
+policy:
+  allow_implicit_invocation: true

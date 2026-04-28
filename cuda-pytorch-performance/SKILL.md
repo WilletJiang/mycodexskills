@@ -1,73 +1,42 @@
 ---
 name: cuda-pytorch-performance
-description: Optimize PyTorch workloads with CUDA kernels, CUDA C++ extensions, and NVIDIA vendor libraries for single-node GPU performance. Use when Codex needs to profile bottlenecks, improve training or inference latency or throughput, build or tune custom CUDA ops, evaluate cuBLAS, cuBLASLt, cuDNN, CUB, or NCCL paths, reduce memory or launch overhead, or validate correctness and numerical tradeoffs on single-GPU or single-node multi-GPU systems.
+description: Build and modify CUDA, CUDA extension, and GPU-accelerated PyTorch code with a coding-time GPU harness. Use when implementing or reviewing custom kernels, CUDA C++ extensions, Triton or vendor-library paths, cuBLAS, cuBLASLt, cuDNN, CUB, NCCL, stream and memory behavior, launch configuration, single-node multi-GPU execution, or remote GPU experiment workflows.
 ---
 
-# CUDA PyTorch Performance
+# CUDA PyTorch Performance Harness
 
-Use this skill to improve end-to-end PyTorch performance on CUDA without losing correctness, numerical clarity, or maintainability.
+Use this skill while coding GPU paths, not only after performance disappoints. Treat GPU execution as a coherent stack: source code, CUDA toolkit, host compiler, PyTorch extension build, launcher, scheduler allocation, device visibility, correctness checks, and benchmark evidence must agree before kernel tuning is meaningful.
 
-## Workflow
+The local machine may be a Mac. Use it for editing, static review, CPU fallbacks, packaging checks, and host-side tests. Do not treat it as CUDA validation. For CUDA kernels, extensions, and NVIDIA vendor-library paths, create the build and run harness during coding and execute it on the target GPU environment when access is available. If remote execution is unavailable, leave the harness complete and mark CUDA results as pending.
 
-1. Characterize the workload before changing code.
-2. Measure the current path with a fair baseline and representative shapes.
-3. Classify the dominant bottleneck before choosing an optimization.
-4. Prefer the simplest high-leverage fix that addresses the measured bottleneck.
-5. Re-check correctness, numerical behavior, and regressions after each meaningful change.
-6. Finish with reproducible benchmark evidence and explicit tradeoffs.
+## Harness Contract
 
-## Characterize the Workload
+Before changing a CUDA path, define the execution model: single GPU, one process per GPU, or single-node multi-GPU. Identify the target GPU architecture when known, CUDA toolkit, host compiler, PyTorch version, dtype policy, shape matrix, memory layout, correctness oracle, and success metric.
 
-Record these facts up front:
+The harness must include a minimal build path, a minimal run path, correctness validation, representative benchmark inputs, environment capture, and a remote GPU launch recipe. For scheduler-owned environments, let the scheduler define GPU visibility and inspect the visible device set inside the job step. Do not hard-code device selection until scheduler mapping and local rank behavior are understood.
 
-- training, inference, or both
-- single-GPU or single-node multi-GPU
-- latency-sensitive, throughput-oriented, or mixed
-- dominant shapes plus edge shapes
-- dtype and matmul policy: FP32, TF32, FP16, BF16, or mixed precision
-- current baseline path: eager, `torch.compile`, existing extension, or vendor-library implementation
-- success metric: wall time, tokens per second, samples per second, memory, or scaling efficiency
+Read `references/coding-harness.md` before implementing substantial CUDA, extension, or vendor-library changes.
 
-Treat repository-specific file layouts as local facts to discover, not assumptions to impose.
+## Coding Workflow
 
-## Choose the Optimization Path
+Get a small correct baseline running before tuning. Validate the baseline on one GPU before multi-GPU, one node before multi-node, default-stream correctness before stream overlap, and memory capacity before transfer tuning. Use vendor libraries when they solve the hot operation well. Write custom kernels only when the harness shows that a library or PyTorch path is missing, unsuitable, or measurably inferior.
 
-Use this rough order unless profiling shows otherwise:
+Profile only after correctness, device visibility, build compatibility, and launch configuration are trustworthy. Nsight or kernel-level timing cannot compensate for broken rank mapping, wrong devices, ABI drift, or invalid memory behavior.
 
-1. Remove avoidable data movement, layout churn, and synchronization.
-2. Use vendor-library paths when they already solve the hot operation well.
-3. Fuse memory-bound operator chains when launch or bandwidth overhead dominates.
-4. Write custom CUDA kernels only when a library path is missing or measurably inferior.
-5. Tune communication overlap and bucketization when multi-GPU scaling is the real bottleneck.
+## References
 
-Do not ship a custom kernel just because it is impressive. Ship the path that is fastest, defensible, and maintainable for the actual workload.
+Use `references/coding-harness.md` for the coding-time GPU harness model. Use `references/benchmarking.md` for baseline design, `references/optimization-playbook.md` for bottleneck diagnosis, `references/pytorch-extension-patterns.md` for extension layout and dispatch, `references/multi-gpu-nccl.md` for communication and overlap, `references/numerics-and-correctness.md` for tolerances, `references/portability-and-arch-targeting.md` for architecture targets and fallbacks, and `references/system-triage-and-failure-modes.md` when kernels look fast but the complete workload does not.
 
-## Read References as Needed
+## Scripts
 
-- Read [references/benchmarking.md](./references/benchmarking.md) for baseline selection, benchmark matrices, and reporting rules.
-- Read [references/optimization-playbook.md](./references/optimization-playbook.md) for bottleneck diagnosis and optimization ordering.
-- Read [references/pytorch-extension-patterns.md](./references/pytorch-extension-patterns.md) for extension layout, binding rules, and dispatch guidance.
-- Read [references/multi-gpu-nccl.md](./references/multi-gpu-nccl.md) for single-node multi-GPU communication and overlap work.
-- Read [references/numerics-and-correctness.md](./references/numerics-and-correctness.md) for tolerances, gradient checks, and training validation.
-- Read [references/portability-and-arch-targeting.md](./references/portability-and-arch-targeting.md) for architecture targets, fallbacks, and portability rules.
-- Read [references/system-triage-and-failure-modes.md](./references/system-triage-and-failure-modes.md) when GPU kernels look fine but end-to-end performance, memory, or scaling still disappoints.
+Prefer repository-native build, test, and benchmark harnesses when they exist. Use the bundled scripts to bootstrap missing pieces:
 
-Load only the files that matter for the current task.
+```bash
+python scripts/capture_env.py
+python scripts/bench_stmt.py --help
+bash scripts/profile_nsys.sh --help
+```
 
-## Use Bundled Scripts
+## Completion Standard
 
-- Run `scripts/capture_env.py` to capture GPU, driver, PyTorch, and topology facts in JSON.
-- Run `scripts/bench_stmt.py` for a quick warmup-and-timing harness around Python statements.
-- Run `scripts/profile_nsys.sh` to launch a command under Nsight Systems with sensible defaults.
-
-Prefer the repository's existing benchmark or profiling harness when one already exists. Use the bundled scripts to bootstrap a disciplined workflow when the repository does not provide one.
-
-## Deliverable Expectations
-
-Finish with:
-
-- the measured baseline and optimized numbers
-- the benchmark matrix or the reason it was narrowed
-- correctness and numerical validation evidence
-- any unsupported shapes, dtypes, architectures, or fallback paths
-- a short explanation of why the chosen path won
+Finish with the code change, build command, launch command, environment record, correctness evidence, benchmark matrix, remote GPU result when available, unsupported shapes or architectures, and remaining assumptions. A CUDA optimization without a runnable GPU harness is not complete.

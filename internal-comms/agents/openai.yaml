@@ -1,4 +1,7 @@
 interface:
-  display_name: "Internal Comms"
-  short_description: "Help with Internal Comms tasks"
-  default_prompt: "Use $internal-comms to draft this internal communication."
+  display_name: "Internal Communications"
+  short_description: "Write clear internal updates and reports."
+  default_prompt: "Use $internal-comms to draft an internal message with the right audience, context, and action."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,314 +1,79 @@
 ---
 name: pdf
-description: Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.
+description: Use this skill whenever the user wants to read, extract, create, edit, combine, split, rotate, watermark, encrypt, decrypt, OCR, annotate, or fill PDF files. Trigger whenever a .pdf file is mentioned or when the requested deliverable is a PDF. Use visual rendering or OCR for scanned, multi-column, figure-heavy, or layout-sensitive PDFs.
 license: Proprietary. LICENSE.txt has complete terms
 ---
 
-# PDF Processing Guide
+# PDF Workflows
 
-## Overview
+Use this skill when PDF is either the input format or the required output format. Choose the tool by document structure: use text extraction for simple born-digital PDFs, OCR for scanned pages, form tooling for fillable forms, and rendering when visual fidelity or reading order matters.
 
-This guide covers essential PDF processing operations using Python libraries and command-line tools. For advanced features, JavaScript libraries, and detailed examples, see REFERENCE.md. If you need to fill out a PDF form, read FORMS.md and follow its instructions.
+For academic papers, two-column reports, proceedings papers, figure-heavy documents, dense tables, mathematical displays, footnotes, marginal notes, or any PDF where reading order matters, treat plain text extraction as provisional. Render pages to images first and inspect the layout visually. If the PDF has no reliable text layer, or if extracted text disagrees with the rendered page, use OCR and reconcile the result against the page image. The rendered page is the authority for reading order.
 
-## Quick Start
+For basic page operations, use `pypdf`. It is appropriate for merging, splitting, rotating, metadata inspection, encryption, and simple watermarking. For layout-aware text and table extraction, use `pdfplumber`, but validate multi-column output visually before relying on it. For new programmatic PDFs, use ReportLab. For command-line restructuring, use `qpdf` when available. For scanned documents, convert pages to images and use OCR.
 
-```python
-from pypdf import PdfReader, PdfWriter
+## Layout-Sensitive Reading
 
-# Read a PDF
-reader = PdfReader("document.pdf")
-print(f"Pages: {len(reader.pages)}")
+Use this path when the document is two-column, scanned, math-heavy, table-heavy, or visually complex. First render page images:
 
-# Extract text
-text = ""
-for page in reader.pages:
-    text += page.extract_text()
-```
-
-## Python Libraries
-
-### pypdf - Basic Operations
-
-#### Merge PDFs
-```python
-from pypdf import PdfWriter, PdfReader
-
-writer = PdfWriter()
-for pdf_file in ["doc1.pdf", "doc2.pdf", "doc3.pdf"]:
-    reader = PdfReader(pdf_file)
-    for page in reader.pages:
-        writer.add_page(page)
-
-with open("merged.pdf", "wb") as output:
-    writer.write(output)
-```
-
-#### Split PDF
-```python
-reader = PdfReader("input.pdf")
-for i, page in enumerate(reader.pages):
-    writer = PdfWriter()
-    writer.add_page(page)
-    with open(f"page_{i+1}.pdf", "wb") as output:
-        writer.write(output)
-```
-
-#### Extract Metadata
-```python
-reader = PdfReader("document.pdf")
-meta = reader.metadata
-print(f"Title: {meta.title}")
-print(f"Author: {meta.author}")
-print(f"Subject: {meta.subject}")
-print(f"Creator: {meta.creator}")
-```
-
-#### Rotate Pages
-```python
-reader = PdfReader("input.pdf")
-writer = PdfWriter()
-
-page = reader.pages[0]
-page.rotate(90)  # Rotate 90 degrees clockwise
-writer.add_page(page)
-
-with open("rotated.pdf", "wb") as output:
-    writer.write(output)
-```
-
-### pdfplumber - Text and Table Extraction
-
-#### Extract Text with Layout
-```python
-import pdfplumber
-
-with pdfplumber.open("document.pdf") as pdf:
-    for page in pdf.pages:
-        text = page.extract_text()
-        print(text)
-```
-
-#### Extract Tables
-```python
-with pdfplumber.open("document.pdf") as pdf:
-    for i, page in enumerate(pdf.pages):
-        tables = page.extract_tables()
-        for j, table in enumerate(tables):
-            print(f"Table {j+1} on page {i+1}:")
-            for row in table:
-                print(row)
-```
-
-#### Advanced Table Extraction
-```python
-import pandas as pd
-
-with pdfplumber.open("document.pdf") as pdf:
-    all_tables = []
-    for page in pdf.pages:
-        tables = page.extract_tables()
-        for table in tables:
-            if table:  # Check if table is not empty
-                df = pd.DataFrame(table[1:], columns=table[0])
-                all_tables.append(df)
-
-# Combine all tables
-if all_tables:
-    combined_df = pd.concat(all_tables, ignore_index=True)
-    combined_df.to_excel("extracted_tables.xlsx", index=False)
-```
-
-### reportlab - Create PDFs
-
-#### Basic PDF Creation
-```python
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-
-c = canvas.Canvas("hello.pdf", pagesize=letter)
-width, height = letter
-
-# Add text
-c.drawString(100, height - 100, "Hello World!")
-c.drawString(100, height - 120, "This is a PDF created with reportlab")
-
-# Add a line
-c.line(100, height - 140, 400, height - 140)
-
-# Save
-c.save()
-```
-
-#### Create PDF with Multiple Pages
-```python
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
-from reportlab.lib.styles import getSampleStyleSheet
-
-doc = SimpleDocTemplate("report.pdf", pagesize=letter)
-styles = getSampleStyleSheet()
-story = []
-
-# Add content
-title = Paragraph("Report Title", styles['Title'])
-story.append(title)
-story.append(Spacer(1, 12))
-
-body = Paragraph("This is the body of the report. " * 20, styles['Normal'])
-story.append(body)
-story.append(PageBreak())
-
-# Page 2
-story.append(Paragraph("Page 2", styles['Heading1']))
-story.append(Paragraph("Content for page 2", styles['Normal']))
-
-# Build PDF
-doc.build(story)
-```
-
-#### Subscripts and Superscripts
-
-**IMPORTANT**: Never use Unicode subscript/superscript characters (₀₁₂₃₄₅₆₇₈₉, ⁰¹²³⁴⁵⁶⁷⁸⁹) in ReportLab PDFs. The built-in fonts do not include these glyphs, causing them to render as solid black boxes.
-
-Instead, use ReportLab's XML markup tags in Paragraph objects:
-```python
-from reportlab.platypus import Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
-
-styles = getSampleStyleSheet()
-
-# Subscripts: use <sub> tag
-chemical = Paragraph("H<sub>2</sub>O", styles['Normal'])
-
-# Superscripts: use <super> tag
-squared = Paragraph("x<super>2</super> + y<super>2</super>", styles['Normal'])
-```
-
-For canvas-drawn text (not Paragraph objects), manually adjust font the size and position rather than using Unicode subscripts/superscripts.
-
-## Command-Line Tools
-
-### pdftotext (poppler-utils)
 ```bash
-# Extract text
-pdftotext input.pdf output.txt
+mkdir -p pages
+python scripts/convert_pdf_to_images.py input.pdf pages
+```
 
-# Extract text preserving layout
+If the bundled converter is unavailable, use Poppler directly:
+
+```bash
+mkdir -p pages
+pdftoppm -png -r 200 input.pdf pages/page
+```
+
+Inspect the rendered pages before summarizing, quoting, extracting tables, or answering questions about the document. For scanned pages or unreliable text layers, run OCR on the rendered page images when OCR tooling is available:
+
+```bash
+tesseract pages/page_1.png stdout -l eng
+```
+
+OCR recovers text; it does not prove layout order. For multi-column pages, verify that the reading sequence follows the visual columns, captions, footnotes, and equation placement.
+
+## Common Commands
+
+Text extraction:
+
+```bash
 pdftotext -layout input.pdf output.txt
-
-# Extract specific pages
-pdftotext -f 1 -l 5 input.pdf output.txt  # Pages 1-5
 ```
 
-### qpdf
+Merge with `qpdf`:
+
 ```bash
-# Merge PDFs
 qpdf --empty --pages file1.pdf file2.pdf -- merged.pdf
-
-# Split pages
-qpdf input.pdf --pages . 1-5 -- pages1-5.pdf
-qpdf input.pdf --pages . 6-10 -- pages6-10.pdf
-
-# Rotate pages
-qpdf input.pdf output.pdf --rotate=+90:1  # Rotate page 1 by 90 degrees
-
-# Remove password
-qpdf --password=mypassword --decrypt encrypted.pdf decrypted.pdf
 ```
 
-### pdftk (if available)
+Split page ranges:
+
 ```bash
-# Merge
-pdftk file1.pdf file2.pdf cat output merged.pdf
-
-# Split
-pdftk input.pdf burst
-
-# Rotate
-pdftk input.pdf rotate 1east output rotated.pdf
+qpdf input.pdf --pages . 1-5 -- pages-1-5.pdf
 ```
 
-## Common Tasks
+Render pages for inspection:
 
-### Extract Text from Scanned PDFs
-```python
-# Requires: pip install pytesseract pdf2image
-import pytesseract
-from pdf2image import convert_from_path
-
-# Convert PDF to images
-images = convert_from_path('scanned.pdf')
-
-# OCR each page
-text = ""
-for i, image in enumerate(images):
-    text += f"Page {i+1}:\n"
-    text += pytesseract.image_to_string(image)
-    text += "\n\n"
-
-print(text)
-```
-
-### Add Watermark
-```python
-from pypdf import PdfReader, PdfWriter
-
-# Create watermark (or load existing)
-watermark = PdfReader("watermark.pdf").pages[0]
-
-# Apply to all pages
-reader = PdfReader("document.pdf")
-writer = PdfWriter()
-
-for page in reader.pages:
-    page.merge_page(watermark)
-    writer.add_page(page)
-
-with open("watermarked.pdf", "wb") as output:
-    writer.write(output)
-```
-
-### Extract Images
 ```bash
-# Using pdfimages (poppler-utils)
-pdfimages -j input.pdf output_prefix
-
-# This extracts all images as output_prefix-000.jpg, output_prefix-001.jpg, etc.
+python scripts/convert_pdf_to_images.py input.pdf output-dir
 ```
 
-### Password Protection
-```python
-from pypdf import PdfReader, PdfWriter
+Extract embedded images:
 
-reader = PdfReader("input.pdf")
-writer = PdfWriter()
-
-for page in reader.pages:
-    writer.add_page(page)
-
-# Add password
-writer.encrypt("userpassword", "ownerpassword")
-
-with open("encrypted.pdf", "wb") as output:
-    writer.write(output)
+```bash
+pdfimages -j input.pdf image
 ```
 
-## Quick Reference
+## Python Patterns
 
-| Task | Best Tool | Command/Code |
-|------|-----------|--------------|
-| Merge PDFs | pypdf | `writer.add_page(page)` |
-| Split PDFs | pypdf | One page per file |
-| Extract text | pdfplumber | `page.extract_text()` |
-| Extract tables | pdfplumber | `page.extract_tables()` |
-| Create PDFs | reportlab | Canvas or Platypus |
-| Command line merge | qpdf | `qpdf --empty --pages ...` |
-| OCR scanned PDFs | pytesseract | Convert to image first |
-| Fill PDF forms | pdf-lib or pypdf (see FORMS.md) | See FORMS.md |
+Use `PdfReader` and `PdfWriter` from `pypdf` for structural changes. Use `pdfplumber.open` for text and tables. When creating PDFs with ReportLab, avoid Unicode subscript and superscript characters with built-in fonts because they often render incorrectly; use ReportLab paragraph markup such as `<sub>` and `<super>` instead.
 
-## Next Steps
+For fillable forms, read `forms.md` before editing. The bundled form scripts inspect fields, extract structure, fill fields, and create validation images. For broader library usage and troubleshooting, read `reference.md`.
 
-- For advanced pypdfium2 usage, see REFERENCE.md
-- For JavaScript libraries (pdf-lib), see REFERENCE.md
-- If you need to fill out a PDF form, follow the instructions in FORMS.md
-- For troubleshooting guides, see REFERENCE.md
+## Verification
+
+After modifying or reading a PDF, inspect page count, page order, rotation, visible content, and form field state as relevant. When layout matters, render pages to images and compare visually. When OCR is used, sample the extracted text against the page images because OCR confidence is not proof of correctness. For two-column PDFs, explicitly check that extracted text has not interleaved left and right columns.

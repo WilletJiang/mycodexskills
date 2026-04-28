@@ -1,63 +1,31 @@
 ---
 name: webapp-testing
-description: Interact with and test local web applications using Playwright. Use whenever Codex needs to verify frontend behavior, inspect rendered DOM state, capture screenshots, collect browser logs, or automate a local web UI, especially when the app requires a dev server, client-side rendering, or browser-driven reproduction steps.
+description: Build browser-based visual and behavioral harnesses for local web applications using Playwright. Use whenever Codex needs to verify frontend behavior, inspect rendered DOM state, capture screenshots, collect browser logs, test responsive layout, check canvas output, or automate a local web UI.
 license: Complete terms in LICENSE.txt
 ---
 
 # Web Application Testing
 
-## Overview
+Use this skill when a browser is the correct verification surface. Static inspection is often enough for simple HTML, but client-rendered applications, local dev servers, canvas output, interactive controls, and layout regressions need Playwright evidence.
 
-Use Playwright to test local web applications. Keep the main skill focused on choosing the right workflow, then load deeper guidance only if needed.
-
-## Preferred Workflow
-
-1. Decide whether the target is static HTML or a running web app.
-2. If a local server is required, run `python scripts/with_server.py --help` before reading the helper source.
-3. Use reconnaissance first on dynamic apps: open the page, wait for `networkidle`, inspect the rendered DOM, then act.
-4. Use example scripts in `scripts/examples/` as starting points, not as rigid templates.
-
-## Quick Start
-
-### Dynamic App with Managed Server
+First determine whether the target is a static file or a running application. If a server is required, prefer the repository's existing command. When a managed server wrapper is useful, inspect its help before reading the source:
 
 ```bash
-python scripts/with_server.py --server "npm run dev" --port 5173 -- python your_automation.py
+python scripts/with_server.py --help
 ```
 
-```python
-from playwright.sync_api import sync_playwright
+For dynamic apps, begin with reconnaissance. Open the page, wait for `networkidle` unless the app never becomes idle, inspect the rendered DOM, capture browser console output when behavior is uncertain, and then interact through stable selectors such as roles, labels, visible text, IDs, or durable CSS hooks. Screenshots should support claims about layout, visual state, or canvas output; DOM evidence should support claims about rendered structure and accessible text.
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page()
-    page.goto("http://localhost:5173")
-    page.wait_for_load_state("networkidle")
-    # interact here
-    browser.close()
-```
+For static HTML, read the file first to learn expected selectors and state. If direct inspection does not answer the question, load it in Playwright and treat it like a rendered app.
 
-### Static HTML
+## Visual Harness
 
-- Read the HTML directly to discover IDs, roles, and selectors.
-- If direct inspection is incomplete, treat it like a dynamic app and inspect the rendered result in Playwright.
+Define the verification surface before interacting: target URL or file, viewport matrix, expected first meaningful render, key interactions, screenshots to capture, and browser logs to collect. Use desktop and mobile viewports for responsive interfaces unless the task is explicitly single-viewport.
 
-## Decision Rules
+For canvas, video, SVG-heavy, WebGL, or Three.js surfaces, use screenshots or pixel checks to prove the primary visual region is nonblank and correctly framed. DOM assertions alone are insufficient for visual output. For ordinary UI, combine DOM checks with screenshots for layout, overflow, contrast, loading state, and interaction state.
 
-- Prefer bundled helpers as black boxes before reading their implementation.
-- Wait for `networkidle` before inspecting dynamic pages unless the app never reaches idle and a more specific wait is required.
-- Capture both DOM evidence and screenshot evidence when debugging uncertain UI state.
-- Use clear selectors such as roles, visible text, labels, IDs, or stable CSS hooks.
+Report the commands, viewports, screenshots or observations, console errors, and any checks that could not be completed.
 
 ## Resources
 
-### scripts/
-
-- `scripts/with_server.py` manages one or more local servers for browser automation.
-- `scripts/examples/element_discovery.py` shows rendered-DOM reconnaissance.
-- `scripts/examples/static_html_automation.py` shows `file://` automation for local HTML.
-- `scripts/examples/console_logging.py` shows browser console capture.
-
-### references/
-
-Read [references/playwright-patterns.md](references/playwright-patterns.md) for the decision tree, reconnaissance workflow, and common pitfalls.
+Use `scripts/with_server.py` to manage local servers. The examples under `scripts/examples` show rendered-DOM reconnaissance, local file automation, and console logging. Read `references/playwright-patterns.md` for the decision tree, waiting strategy, selector discipline, screenshot capture, and common failure modes.

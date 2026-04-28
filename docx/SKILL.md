@@ -1,77 +1,44 @@
 ---
 name: docx
-description: Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files). Triggers include any mention of Word, .docx files, tracked changes, comments, document templates, reports, memos, letters, or professional documents with formatting such as headings, tables of contents, page numbers, headers, or embedded images. Also use when extracting or reorganizing content from .docx files, converting legacy .doc files, or preparing a document for review or redlining. Do not use for PDFs, spreadsheets, or unrelated coding tasks.
+description: Create, read, edit, and manipulate Word documents with a creation-time render harness. Trigger on Word documents, .docx files, tracked changes, comments, document templates, reports, memos, letters, professional formatting, tables of contents, page numbers, headers, embedded images, extraction, reorganization, legacy .doc conversion, review, and redlining. Do not use for PDFs, spreadsheets, or unrelated coding tasks.
 license: Proprietary. LICENSE.txt has complete terms
 ---
 
-# DOCX Creation, Editing, and Analysis
+# DOCX Workflows
 
-## Overview
+Treat a `.docx` file as a package of OOXML parts. Choose the lightest reliable workflow for the task, preserve existing formatting unless the user asks to redesign it, and validate the result before claiming completion.
 
-Treat `.docx` as a ZIP archive of XML parts. Keep the main skill short and route into the right workflow quickly.
-
-## Workflow Decision Tree
-
-| Task | Action |
-|------|--------|
-| Read document text | Use `pandoc --track-changes=all document.docx -o output.md` |
-| Inspect raw OOXML | Run `python scripts/office/unpack.py document.docx unpacked/` |
-| Convert legacy `.doc` | Run `python scripts/office/soffice.py --headless --convert-to docx document.doc` |
-| Create a new document | Read [references/create-documents.md](references/create-documents.md) |
-| Edit an existing document | Read [references/edit-existing-docx.md](references/edit-existing-docx.md) |
-| Work directly with tracked changes, comments, or OOXML patterns | Read [references/ooxml-patterns.md](references/ooxml-patterns.md) |
-
-## Quick Start
-
-### Read Content
+For text extraction, use Pandoc with tracked changes preserved:
 
 ```bash
 pandoc --track-changes=all document.docx -o output.md
-python scripts/office/unpack.py document.docx unpacked/
 ```
 
-### Convert to Images
+For raw OOXML inspection or surgical edits, unpack the file:
 
 ```bash
+python scripts/office/unpack.py document.docx unpacked
+```
+
+For legacy `.doc` conversion or render checks, use LibreOffice through the wrapper:
+
+```bash
+python scripts/office/soffice.py --headless --convert-to docx document.doc
 python scripts/office/soffice.py --headless --convert-to pdf document.docx
-pdftoppm -jpeg -r 150 document.pdf page
 ```
 
-### Accept Tracked Changes
+Read `references/create-documents.md` when generating a new document, `references/edit-existing-docx.md` when modifying an existing file, and `references/ooxml-patterns.md` for tracked changes, comments, images, relationships, and schema-sensitive edits.
 
-```bash
-python scripts/accept_changes.py input.docx output.docx
-```
+Read `references/render-harness.md` before creating or substantially editing a professional document, template, report, or redline where layout matters.
 
-## Rules That Always Apply
+## Editing Standard
 
-- Validate generated or modified documents before declaring success.
-- Prefer the smallest possible XML edit when modifying existing files.
-- Preserve existing formatting by copying the surrounding run or paragraph properties.
-- Use smart quote entities in OOXML when adding professional prose.
-- Preserve existing behavior unless the task explicitly requires a visible document change.
+Use the smallest XML edit that achieves the requested change. Copy surrounding run, paragraph, and section properties when inserting content into an existing design. Preserve styles, numbering, relationships, headers, footers, comments, and revision metadata unless the task explicitly changes them. Use `scripts/comment.py` for comment boilerplate and `scripts/accept_changes.py` when tracked changes must be accepted through LibreOffice.
 
-## Bundled Resources
+## Creation-Time Render Harness
 
-### scripts/
+During creation or substantial editing, establish the render command early. Convert the working document to PDF after the first meaningful layout pass, inspect representative pages, and repeat after major structural changes. XML validation is necessary but not sufficient for professional documents.
 
-- `scripts/office/unpack.py` unpacks Office files for editing.
-- `scripts/office/pack.py` repacks and validates Office files.
-- `scripts/office/validate.py` runs schema and redlining validation.
-- `scripts/comment.py` creates comment boilerplate across the required OOXML files.
-- `scripts/accept_changes.py` accepts tracked changes through LibreOffice.
+Inspect pagination, headings, tables, images, captions, equations, headers, footers, page numbers, comments, tracked changes, table of contents behavior, margins, and text overflow. For redlines, verify both the edited package and the rendered review view when possible.
 
-Run `--help` before reading large helper scripts unless customization is necessary.
-
-### references/
-
-- [references/create-documents.md](references/create-documents.md) for generating new `.docx` files with `docx`.
-- [references/edit-existing-docx.md](references/edit-existing-docx.md) for unpack-edit-pack workflows.
-- [references/ooxml-patterns.md](references/ooxml-patterns.md) for tracked changes, comments, images, and schema-sensitive XML patterns.
-
-## Dependencies
-
-- `pandoc` for text extraction.
-- `docx` (`npm install -g docx`) for generating new documents.
-- LibreOffice via `scripts/office/soffice.py` for conversion and acceptance workflows.
-- `pdftoppm` for image conversion.
+After editing, repack and validate with the Office helper scripts. Before delivery, provide render evidence or state the exact render command and pending checks.

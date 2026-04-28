@@ -1,4 +1,7 @@
 interface:
-  display_name: "PDF"
-  short_description: "Help with PDF tasks and workflows"
-  default_prompt: "Use $pdf to read, edit, or generate the PDF."
+  display_name: "PDF Workflows"
+  short_description: "Read, render, edit, and validate PDF files."
+  default_prompt: "Use $pdf to process the PDF with the right extraction, rendering, OCR, editing, or form workflow."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,32 +1,13 @@
 ---
 name: internal-comms
-description: A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Codex should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).
+description: Draft and revise internal communications in established company formats. Use for progress updates, leadership updates, project updates, incident reports, company newsletters, FAQ responses, and other internal messages where audience, tone, structure, and decision context matter.
 license: Complete terms in LICENSE.txt
 ---
 
-## When to use this skill
-To write internal communications, use this skill for:
-- 3P updates (Progress, Plans, Problems)
-- Company newsletters
-- FAQ responses
-- Status reports
-- Leadership updates
-- Project updates
-- Incident reports
+# Internal Communications
 
-## How to use this skill
+Use this skill when the user needs a message for people inside an organization. The output should be clear about audience, purpose, decision context, ownership, timeline, risks, and next actions. Do not turn internal communication into generic corporate filler; make the message useful to the people who must act on it.
 
-To write any internal communication:
+First identify the communication type. For progress, plans, and problems updates, read `examples/3p-updates.md`. For company-wide newsletters, read `examples/company-newsletter.md`. For frequently asked questions, read `examples/faq-answers.md`. For status reports, leadership updates, incident updates, and other formats that do not match a dedicated example, read `examples/general-comms.md`.
 
-1. **Identify the communication type** from the request
-2. **Load the appropriate guideline file** from the `examples/` directory:
-    - `examples/3p-updates.md` - For Progress/Plans/Problems team updates
-    - `examples/company-newsletter.md` - For company-wide newsletters
-    - `examples/faq-answers.md` - For answering frequently asked questions
-    - `examples/general-comms.md` - For anything else that doesn't explicitly match one of the above
-3. **Follow the specific instructions** in that file for formatting, tone, and content gathering
-
-If the communication type doesn't match any existing guideline, ask for clarification or more context about the desired format.
-
-## Keywords
-3P updates, company newsletter, company comms, weekly update, faqs, common questions, updates, internal comms
+Use the selected guideline to shape the structure, tone, and context gathering. If the requested format is ambiguous, ask only for the missing information that changes the document materially, such as audience, decision owner, urgency, or whether the message should inform, request approval, or drive execution.

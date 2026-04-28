@@ -1,4 +1,7 @@
 interface:
-  display_name: "XLSX"
-  short_description: "Help with XLSX tasks and workflows"
-  default_prompt: "Use $xlsx to create, edit, or clean up the spreadsheet."
+  display_name: "Spreadsheet Workflows"
+  short_description: "Create spreadsheets with integrity checks."
+  default_prompt: "Use $xlsx to work on the spreadsheet with schema, range, formula, recalculation, hardcode, and reopen verification."
+
+policy:
+  allow_implicit_invocation: true

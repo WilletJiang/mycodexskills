@@ -1,4 +1,7 @@
 interface:
   display_name: "Frontend Design"
-  short_description: "Help with Frontend Design tasks"
-  default_prompt: "Use $frontend-design to design and build this frontend UI."
+  short_description: "Build web UI with browser verification."
+  default_prompt: "Use $frontend-design to design, implement, and visually verify the frontend across relevant viewports."
+
+policy:
+  allow_implicit_invocation: true

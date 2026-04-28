@@ -1,58 +1,44 @@
 ---
 name: pytorch-python-performance
-description: Optimize PyTorch training and inference performance before reaching for custom CUDA or C++ extensions. Use when Codex needs to inspect a PyTorch codebase, identify likely Python- or framework-level bottlenecks, apply high-leverage optimizations such as torch.compile, inference_mode, AMP, DataLoader tuning, better batching, memory-format changes, or host-threading fixes, and quantify before-versus-after speedups on CPU or GPU.
+description: Build and modify PyTorch training or inference code with a coding-time performance harness. Use when implementing modules, losses, data pipelines, training loops, inference paths, batching logic, torch.compile adoption, AMP, runtime modes, DataLoader tuning, or other performance-sensitive PyTorch work, especially when GPU experiments will run on remote hardware rather than the local machine.
 ---
 
-# PyTorch Python Performance
+# PyTorch Performance Harness
 
-Use this skill to squeeze more speed out of PyTorch while staying in ordinary Python and built-in framework features.
+Use this skill while writing performance-sensitive PyTorch code, not only after a slowdown appears. Treat the implementation and its measurement harness as one deliverable. A change is incomplete until there is a reproducible way to exercise the hot path, check correctness, run representative shapes, and record timing evidence.
 
-This skill is heuristic-driven. Start by scanning for likely high-value fixes, then prove the win with before-versus-after measurements. Treat profiler work as optional escalation, not the default first step.
+The local machine may be a Mac without CUDA. That is acceptable for editing, unit tests, CPU smoke tests, shape checks, and small correctness checks. It is not evidence of GPU performance. When the target workload runs on NVIDIA GPUs, create or update the GPU harness during coding and run it on the remote GPU environment when access is available. If GPU execution is not available in the current turn, leave the harness runnable and clearly mark GPU results as pending.
 
-## Workflow
+## Harness Contract
 
-1. Classify the workload: training or inference, CPU or GPU, latency or throughput.
-2. Run a heuristic scan of the code and execution path.
-3. Pick the top three to five optimizations that look both plausible and cheap to test.
-4. Benchmark each change against the baseline with the same shapes, dtype policy, and semantics.
-5. Keep the changes that clearly win and do not break correctness.
-6. Escalate to `cuda-pytorch-performance` only when PyTorch-level gains are exhausted or the hot path clearly demands custom kernels.
+Before changing the hot path, define the workload contract: training or inference, target device, expected tensor shapes, edge shapes, dtype policy, batch policy, randomness, correctness oracle, and success metric. Then add or update a small harness near the codebase's existing tests, benchmarks, experiments, or scripts. Prefer local repository conventions over creating a new directory.
 
-## Heuristic Priorities
+The harness should contain a deterministic input generator, a correctness check against the existing implementation or a mathematically equivalent oracle, a benchmark entry point with warmup and synchronized timing on CUDA, and a remote GPU run recipe. Capture the git revision, Python version, PyTorch version, device name, dtype, shape matrix, command line, and result path.
 
-Check these first unless the repository strongly suggests otherwise:
+Do not rewrite a model around `torch.compile`, AMP, pinned memory, or DataLoader changes without putting those modes behind the harness. Each mode must be separately runnable so regressions can be attributed.
 
-1. Missing `torch.compile`, `model.eval()`, `torch.inference_mode()`, or mixed precision.
-2. Python hot-path issues such as tiny op loops, synchronization points, or repeated object creation.
-3. Data pipeline issues such as weak `DataLoader` settings, heavy `collate_fn`, or host-side preprocessing bottlenecks.
-4. Host-side issues such as bad thread counts, oversubscription, or GPU starvation from CPU work.
-5. Memory-format or built-in fast-path opportunities such as `channels_last` or better batching.
+Read `references/coding-harness.md` before implementing substantial performance-sensitive PyTorch changes.
 
-## Read References as Needed
+## Coding Workflow
 
-- Read [references/heuristic-checklist.md](./references/heuristic-checklist.md) first for the LLM-oriented optimization scan.
-- Read [references/benchmarking.md](./references/benchmarking.md) to quantify before-and-after differences fairly.
-- Read [references/torch-compile.md](./references/torch-compile.md) for compile strategy, graph breaks, and recompilation issues.
-- Read [references/runtime-modes-and-autograd.md](./references/runtime-modes-and-autograd.md) for `eval`, `no_grad`, `inference_mode`, and grad-reset behavior.
-- Read [references/precision-and-memory-format.md](./references/precision-and-memory-format.md) for AMP, dtype policy, and `channels_last`.
-- Read [references/data-pipeline.md](./references/data-pipeline.md) for `DataLoader`, pinning, worker lifetime, and collation issues.
-- Read [references/host-and-threading.md](./references/host-and-threading.md) for CPU threads, multiprocessing, and host-driven bottlenecks.
-- Read [references/escalate-to-cuda.md](./references/escalate-to-cuda.md) when PyTorch-level changes stop paying off.
+Start with a minimal baseline that already exercises the real code path. Then implement the smallest production change and keep the harness in sync. Use CPU smoke tests locally to catch shape, dtype, and autograd mistakes. Use the remote GPU harness for actual latency, throughput, memory, and compile-amortization claims.
 
-## Use Bundled Scripts
+Prefer high-leverage framework changes before custom kernels: runtime modes, batching, `torch.compile`, AMP, memory format, data loading, host threading, synchronization removal, and fewer tiny operations. Keep only changes that preserve semantics and win under the harness. Escalate to `cuda-pytorch-performance` when the PyTorch-level harness shows a stable bottleneck that needs CUDA kernels, vendor libraries, or extension work.
 
-- Run `scripts/capture_env.py` to capture Python, PyTorch, CPU, and CUDA environment facts.
-- Run `scripts/bench_stmt.py` to time a Python statement with warmup, optional CUDA sync, and JSON output.
-- Run `scripts/compare_modes.py` to compare eager and compiled execution paths around the same callable.
+## References
 
-Prefer the repository's existing benchmark harness when it exists. Use the bundled scripts to bootstrap comparisons quickly when the repository does not provide one.
+Use `references/coding-harness.md` for the coding-time harness model. Use `references/heuristic-checklist.md` for the scan, `references/benchmarking.md` for fair comparisons, `references/torch-compile.md` for graph breaks and recompilation, `references/runtime-modes-and-autograd.md` for runtime modes, `references/precision-and-memory-format.md` for AMP and `channels_last`, `references/data-pipeline.md` for input pipelines, `references/host-and-threading.md` for CPU scheduling, and `references/escalate-to-cuda.md` when Python-level work is the wrong layer.
 
-## Success Criteria
+## Scripts
 
-Finish with:
+Prefer the repository's own harness when it is credible. Use the bundled scripts to bootstrap missing pieces:
 
-- the baseline and optimized numbers
-- the percentage change
-- the exact semantic assumptions that stayed fixed
-- any correctness or numerical caveats
-- a short explanation of why the winning change helped
+```bash
+python scripts/capture_env.py
+python scripts/bench_stmt.py --help
+python scripts/compare_modes.py --help
+```
+
+## Completion Standard
+
+Finish with the code change, the harness or harness update, local smoke evidence, remote GPU evidence when available, correctness checks, shape and dtype coverage, exact commands, result location, and remaining performance assumptions. A claim about GPU speed without a GPU harness run is only a hypothesis.
